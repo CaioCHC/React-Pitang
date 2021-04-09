@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import * as Yup from 'yup';
 import DatePicker from 'react-datepicker';
@@ -11,25 +12,27 @@ import {
   Formik, Field, Form, ErrorMessage,
 } from 'formik';
 
-function onSubmit(values) {
-  console.log('SUBMIT', values);
-}
+export default function index({ pacientes = [], setPacientes }) {
+  const onSubmit = (values) => setPacientes([...pacientes, values.name]);
 
-const validationSchema = Yup.object({
-  name: Yup.string().trim().required('Campo obrigatório'),
-  birth: Yup.date().required('Campo obrigatório').nullable(),
-  Agendamento: Yup.date().required('Campo obrigatório').nullable(),
-});
+  const validationSchema = Yup.object({
+    name: Yup.string().trim().required('Campo obrigatório'),
+    birth: Yup.date().required().nullable('Campo obrigatório'),
+    agendamento: Yup.date().required().nullable('Campo obrigatório'),
+  });
 
-export default function index() {
   return (
     <Formik
       validationSchema={validationSchema}
-      onSubmit={onSubmit}
+      onSubmit={async (values, { resetForm }) => {
+        await onSubmit(values);
+        resetForm();
+      }}
       validateOnMount
       initialValues={{
         name: '',
         birth: null,
+        agendamento: null,
       }}
     >
       {({ isValid }) => (
@@ -42,15 +45,15 @@ export default function index() {
           </div>
 
           <FormLabel htmlFor="birth">Nascimento</FormLabel>
-          <Field name="birth" id="birth">
+          <Field name="birth" id="birth" field>
             {({ form, field }) => {
               const { setFieldValue } = form;
               const { value } = field;
               return (
                 <DatePicker
-                  id="birth"
-                  selected={value}
-                  onChange={(val) => setFieldValue('birth', val)} // cada mudança no DatePicker é passada pro form
+                  {...field}
+                  selected={value} // ao reabir, o campo selecionado anteriormente estará marcado
+                  onChange={(val) => setFieldValue('birth', val)} // cada mudança no DatePicker é passada pro field
                   maxDate={new Date()}
                   dateFormat="dd/MM/yyyy"
                   locale={ptBR}
@@ -64,16 +67,17 @@ export default function index() {
             <ErrorMessage name="birth" />
           </div>
 
-          <FormLabel htmlFor="Agendamento">Agendamento</FormLabel>
-          <Field name="Agendamento" id="Agendamento">
-            {({ form, field }) => {
+          <FormLabel htmlFor="agendamento">Agendamento</FormLabel>
+          <Field name="agendamento" id="agendamento">
+            {({ form, field = {} }) => {
               const { setFieldValue } = form;
               const { value } = field;
+
               return (
                 <DatePicker
-                  id="Agendamento"
+                  {...field}
                   selected={value}
-                  onChange={(val) => setFieldValue('Agendamento', val)}
+                  onChange={(val) => setFieldValue('agendamento', val)}
                   showTimeSelect
                   minDate={addDays(new Date(), 1)}
                   maxDate={addDays(new Date(), 5)}
@@ -87,7 +91,7 @@ export default function index() {
             }}
           </Field>
           <div style={{ color: 'red' }}>
-            <ErrorMessage name="Agendamento" />
+            <ErrorMessage name="agendamento" />
           </div>
 
           <Button className="mt-5" type="submit" variant="success" disabled={!isValid}>Enviar</Button>

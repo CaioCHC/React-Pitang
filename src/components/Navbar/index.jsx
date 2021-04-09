@@ -3,7 +3,7 @@ import { Navbar, Nav } from 'react-bootstrap';
 
 import { Link } from 'react-router-dom';
 
-export default function Header({ title = 'Navbar Title', routes = [] }) {
+export default function Index({ title = 'Navbar Title', routes = [] }) {
   return (
     <Navbar bg="success" variant="dark" expand="lg">
       <Navbar.Brand href="/">{title}</Navbar.Brand>

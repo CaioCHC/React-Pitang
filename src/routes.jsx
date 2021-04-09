@@ -20,7 +20,12 @@ const Routes = () => (
     <Navbar title="Sistema de agendamento" routes={routes} />
     <Switch>
       {routes.map(({ path, component }) => (
-        <Route exact key={path} path={path} component={component} />
+        <Route
+          exact
+          key={path}
+          path={path}
+          component={component}
+        />
       ))}
     </Switch>
   </BrowserRouter>
