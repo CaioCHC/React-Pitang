@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
-
 import Agendamento from './pages/Agendamento';
 import Consulta from './pages/Consulta';
 
@@ -16,6 +15,7 @@ const routes = [{
 }];
 
 const Routes = () => (
+
   <BrowserRouter>
     <Navbar title="Sistema de agendamento" routes={routes} />
     <Switch>

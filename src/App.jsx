@@ -1,5 +1,6 @@
 import React from 'react';
 import Routes from './routes';
+import PagesContextProvider from './pagesContextProvider';
 
 function App() {
   return (
@@ -9,4 +10,8 @@ function App() {
   );
 }
 
-export default App;
+export default () => (
+  <PagesContextProvider>
+    <App />
+  </PagesContextProvider>
+);
