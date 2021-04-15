@@ -1,42 +1,5 @@
 {
   "register": [
-    {
-      "id": "14-3-2021",
-      "patients": [
-        {
-          "name": "Caio César Hélio de Carvalho",
-          "age": 0,
-          "hour": 11,
-          "minutes": 30,
-          "status": "Aguardando"
-        },
-        {
-          "name": "Daniela de Santana Marins",
-          "age": 1,
-          "hour": 11,
-          "minutes": 30,
-          "status": "Aguardando"
-        }
-      ]
-    },
-    {
-      "id": "16-3-2021",
-      "patients": [
-        {
-          "name": "dsds",
-          "age": 1,
-          "hour": 0,
-          "minutes": 0,
-          "status": "Aguardando"
-        },
-        {
-          "name": "Xeque mate",
-          "age": 0,
-          "hour": 0,
-          "minutes": 0,
-          "status": "Aguardando"
-        }
-      ]
-    }
+ 
   ]
 }

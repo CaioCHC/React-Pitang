@@ -23,7 +23,7 @@ export default function SchedulingForm() {
 
   const onSubmit = async (values) => {
     const { name } = values;
-    const date = `${values.scheduling.getDate()}-${values.scheduling.getMonth()}-${values.scheduling.getFullYear()}`;
+    const date = `${values.scheduling.getDate()}-${values.scheduling.getMonth() + 1}-${values.scheduling.getFullYear()}`;
     // Lógica para converter data selecionada em idade.
     const age = getYear(new Date()) - values.birth.getFullYear()
       + (getMonth(new Date()) - values.birth.getMonth() < 0 ? 1
@@ -38,26 +38,75 @@ export default function SchedulingForm() {
       status: 'Aguardando',
     };
     let existingDate = false;
-    let dayReference;
+    let dayReference = {};
+    let change = false;
     // Verifica se já existe registro da data selecionada; caso sim armazena atualização da lista.
     const updatedPatients = register.map((day) => {
       if (day.id === date) {
         existingDate = true;
-        dayReference = day;
-        return {
-          id: day.id, patients: [...day.patients, patient],
-        };
+        let slotCount = 0;
+        let patientPosition1 = 0;
+        let patientPosition2 = 0;
+        let slotPatient1 = {};
+        let slotPatient2 = {};
+
+        // checa se há posições disponiveis para o horário e quem as ocupa.
+        day.patients.forEach((element, index) => {
+          if (patient.hour === element.hour && patient.minutes === element.minutes) {
+            slotCount += 1;
+            if (slotCount === 1) {
+              patientPosition1 = index;
+              slotPatient1 = element;
+            } else if (slotCount === 2) {
+              patientPosition2 = index;
+              slotPatient2 = element;
+            }
+          }
+        });
+        // Lógica da regra de negocios
+        if (slotCount < 2) {
+          if (day.patients.length < 20) {
+            dayReference = { id: day.id, patients: [...day.patients, patient] };
+            change = true;
+            return {
+              id: day.id, patients: [...day.patients, patient],
+            };
+          }console.log('Não há mais vagas nessa data');
+        }
+        if (patient.age >= 60 && slotPatient1.age < 60) {
+          // eslint-disable-next-line no-param-reassign
+          day.patients[patientPosition1] = { ...patient };
+          dayReference = {
+            id: day.id,
+            patients:
+            [...day.patients],
+          };
+          change = true;
+          return {
+            id: day.id, patients: [...day.patients],
+          };
+        }
+        if (patient.age >= 60 && slotPatient2.age < 60) {
+          // eslint-disable-next-line no-param-reassign
+          day.patients[patientPosition2] = { ...patient };
+          dayReference = { id: day.id, patients: [...day.patients] };
+          change = true;
+          return {
+            id: day.id, patients: [...day.patients],
+          };
+        }
+        console.log('Não há mais vagas nesse horário');
       }
       return {
         ...day,
       };
     });
-    // Se não existe nenhum reistro nessa data, cria novo registro com cadastro do paciente.
+    // Se não existe nenhum registro nessa data, cria novo registro com cadastro do paciente.
     if (existingDate === false) {
       const response = await axios.post('/register', { id: date, patients: [patient] });
       setRegister([...register, response.data]);
-    } else { // Se existe, atualiza a lista de pacientes nessa data.
-      await axios.put(`/register/${date}`, { ...dayReference, patients: [...dayReference.patients, patient] });
+    } else if (change) { // Se existe registro e houveram mudanças, atualiza a lista.
+      await axios.put(`/register/${date}`, dayReference);
       setRegister(updatedPatients);
     }
   };
