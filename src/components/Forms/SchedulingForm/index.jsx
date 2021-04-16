@@ -32,6 +32,8 @@ export default function SchedulingForm() {
     const patient = {
       name,
       age,
+      schedule: `${values.scheduling.getHours()}:${values.scheduling.getMinutes() >= 10 ? values.scheduling.getMinutes()
+        : `0${values.scheduling.getMinutes()}`}`,
       hour: values.scheduling.getHours(),
       minutes: values.scheduling.getMinutes(),
       status: 'Aguardando',

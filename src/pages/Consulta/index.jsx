@@ -16,7 +16,7 @@ export default function Consulta() {
       break;
     }
   }
-  // Ordena lista de pacientes para visualização na tabela
+  // Ordena lista de pacientes para visualização na tabela usando os dados de horas e minutos
   patientsSort.sort((a, b) => {
     if (a.hour < b.hour) { return a.hour - b.hour; }
     if (a.hour === b.hour && a.minutes < b.minutes) { return a.minutes - b.minutes; }
@@ -25,7 +25,7 @@ export default function Consulta() {
 
   const titles = [
     {
-      name: 'hour',
+      name: 'schedule',
       value: 'Horário',
     },
     {
