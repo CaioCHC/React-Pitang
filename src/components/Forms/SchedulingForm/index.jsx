@@ -1,6 +1,6 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useState, useContext } from 'react';
+import React, { useContext } from 'react';
 import * as Yup from 'yup';
 import DatePicker from 'react-datepicker';
 import {
@@ -8,7 +8,7 @@ import {
 } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
 import 'react-datepicker/dist/react-datepicker.css';
-import { Button, Modal } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import FormLabel from 'react-bootstrap/FormLabel';
 import './SchedulingForm.css';
 import {
@@ -18,7 +18,6 @@ import axios from '../../../utils/api';
 import { PagesContext } from '../../../pagesContextProvider';
 
 export default function SchedulingForm() {
-  const [show, setShow] = useState(false);
   const [register, setRegister] = useContext(PagesContext);
 
   const onSubmit = async (values) => {
@@ -119,101 +118,81 @@ export default function SchedulingForm() {
   });
 
   return (
-    <>
-      <Modal>
-        <Modal.Dialog>
-          <Modal.Header closeButton>
-            <Modal.Title>Modal title</Modal.Title>
-          </Modal.Header>
+    <Formik
+      validationSchema={validationSchema}
+      onSubmit={async (values, { resetForm }) => {
+        await onSubmit(values);
+        resetForm();
+      }}
+      validateOnMount
+      initialValues={{
+        name: '',
+        birth: null,
+        scheduling: null,
+      }}
+    >
+      {({ isValid }) => (
+        <Form>
 
-          <Modal.Body>
-            <p>Modal body text goes here.</p>
-          </Modal.Body>
+          <FormLabel htmlFor="name">Nome</FormLabel>
+          <Field name="name" id="name" type="text" />
+          <div style={{ color: 'red' }}>
+            <ErrorMessage name="name" />
+          </div>
 
-          <Modal.Footer>
-            <Button variant="secondary">Close</Button>
-            <Button variant="primary">Save changes</Button>
-          </Modal.Footer>
-        </Modal.Dialog>
-      </Modal>
+          <FormLabel htmlFor="birth">Nascimento</FormLabel>
+          <Field name="birth" id="birth">
+            {({ form, field }) => {
+              const { setFieldValue } = form;
+              const { value } = field;
+              return (
+                <DatePicker
+                  {...field}
+                  selected={value} // ao reabrir, o campo selecionado anteriormente estará marcado
+                  onChange={(val) => setFieldValue('birth', val)} // cada mudança no DatePicker é passada pro field
+                  maxDate={new Date()}
+                  dateFormat="dd/MM/yyyy"
+                  locale={ptBR}
+                  showYearDropdown
+                  dropdownMode="select"
+                />
+              );
+            }}
+          </Field>
+          <div style={{ color: 'red' }}>
+            <ErrorMessage name="birth" />
+          </div>
 
-      <Formik
-        validationSchema={validationSchema}
-        onSubmit={async (values, { resetForm }) => {
-          await onSubmit(values);
-          resetForm();
-          setShow(!show);
-        }}
-        validateOnMount
-        initialValues={{
-          name: '',
-          birth: null,
-          scheduling: null,
-        }}
-      >
-        {({ isValid }) => (
-          <Form>
+          <FormLabel htmlFor="scheduling">Agendamento</FormLabel>
+          <Field name="scheduling" id="scheduling">
+            {({ form, field }) => {
+              const { setFieldValue } = form;
+              const { value } = field;
 
-            <FormLabel htmlFor="name">Nome</FormLabel>
-            <Field name="name" id="name" type="text" />
-            <div style={{ color: 'red' }}>
-              <ErrorMessage name="name" />
-            </div>
+              return (
+                <DatePicker
+                  {...field}
+                  selected={value}
+                  onChange={(val) => setFieldValue('scheduling', val)}
+                  showTimeSelect
+                  minDate={addDays(new Date(), 1)}
+                  maxDate={addDays(new Date(), 5)}
+                  minTime={setHours(setMinutes(new Date(), 0), 8)}
+                  maxTime={setHours(setMinutes(new Date(), 30), 12)}
+                  dateFormat="dd/MM/yyyy h:mm aa"
+                  timeCaption="Horário"
+                  locale={ptBR}
+                />
+              );
+            }}
+          </Field>
+          <div style={{ color: 'red' }}>
+            <ErrorMessage name="scheduling" />
+          </div>
 
-            <FormLabel htmlFor="birth">Nascimento</FormLabel>
-            <Field name="birth" id="birth">
-              {({ form, field }) => {
-                const { setFieldValue } = form;
-                const { value } = field;
-                return (
-                  <DatePicker
-                    {...field}
-                    selected={value} // ao reabrir, o campo selecionado anteriormente estará marcado
-                    onChange={(val) => setFieldValue('birth', val)} // cada mudança no DatePicker é passada pro field
-                    maxDate={new Date()}
-                    dateFormat="dd/MM/yyyy"
-                    locale={ptBR}
-                    showYearDropdown
-                    dropdownMode="select"
-                  />
-                );
-              }}
-            </Field>
-            <div style={{ color: 'red' }}>
-              <ErrorMessage name="birth" />
-            </div>
-
-            <FormLabel htmlFor="scheduling">Agendamento</FormLabel>
-            <Field name="scheduling" id="scheduling">
-              {({ form, field }) => {
-                const { setFieldValue } = form;
-                const { value } = field;
-
-                return (
-                  <DatePicker
-                    {...field}
-                    selected={value}
-                    onChange={(val) => setFieldValue('scheduling', val)}
-                    showTimeSelect
-                    minDate={addDays(new Date(), 1)}
-                    maxDate={addDays(new Date(), 5)}
-                    minTime={setHours(setMinutes(new Date(), 0), 8)}
-                    maxTime={setHours(setMinutes(new Date(), 30), 12)}
-                    dateFormat="dd/MM/yyyy h:mm aa"
-                    timeCaption="Horário"
-                    locale={ptBR}
-                  />
-                );
-              }}
-            </Field>
-            <div style={{ color: 'red' }}>
-              <ErrorMessage name="scheduling" />
-            </div>
-
-            <Button className="mt-5" type="submit" variant="success" disabled={!isValid}>Enviar</Button>
-          </Form>
-        )}
-      </Formik>
-    </>
+          <Button className="mt-5" type="submit" variant="success" disabled={!isValid}>Enviar</Button>
+        </Form>
+      )}
+    </Formik>
   );
 }
