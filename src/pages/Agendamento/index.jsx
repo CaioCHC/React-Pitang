@@ -7,7 +7,7 @@ export default function Agendamento() {
   return (
     <Container className="mt-5">
       <Card title="Agendamento">
-        <SchedulingForm />
+        <SchedulingForm maxSlots={2} old={60} />
       </Card>
     </Container>
   );

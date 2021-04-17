@@ -7,18 +7,16 @@ import {
   setHours, setMinutes, addDays, getDate, getYear, getMonth,
 } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
-import 'react-datepicker/dist/react-datepicker.css';
 import { Button } from 'react-bootstrap';
 import FormLabel from 'react-bootstrap/FormLabel';
-import './SchedulingForm.css';
 import {
   Formik, Field, Form, ErrorMessage,
 } from 'formik';
 import axios from '../../../utils/api';
 import { PagesContext } from '../../../pagesContextProvider';
 
-export default function SchedulingForm() {
-  const [register, setRegister] = useContext(PagesContext);
+export default function SchedulingForm({ maxSlots, old }) {
+  const [register, setRegister, maxSchedules] = useContext(PagesContext);
 
   const onSubmit = async (values) => {
     const { name } = values;
@@ -47,27 +45,22 @@ export default function SchedulingForm() {
       if (day.id === date) {
         existingDate = true;
         let slotCount = 0;
-        let patientPosition1 = 0;
-        let patientPosition2 = 0;
-        let slotPatient1 = {};
-        let slotPatient2 = {};
+        let patientPosition = 0;
+        let slotPatient = null;
 
-        // checa se há posições disponiveis para o horário e quem as ocupa.
+        // checa se há posições disponiveis para o horário e se há possibilidade de troca
         day.patients.forEach((element, index) => {
           if (patient.hour === element.hour && patient.minutes === element.minutes) {
             slotCount += 1;
-            if (slotCount === 1) {
-              patientPosition1 = index;
-              slotPatient1 = element;
-            } else if (slotCount === 2) {
-              patientPosition2 = index;
-              slotPatient2 = element;
+            if (patient.age >= old && element.age < old && slotPatient === null) {
+              patientPosition = index;
+              slotPatient = element;
             }
           }
         });
         // Lógica da regra de negocios
-        if (slotCount < 2) {
-          if (day.patients.length < 20) {
+        if (slotCount < maxSlots) {
+          if (day.patients.length < maxSchedules) {
             dayReference = { id: day.id, patients: [...day.patients, patient] };
             change = true;
             return {
@@ -75,23 +68,14 @@ export default function SchedulingForm() {
             };
           }console.log('Não há mais vagas nessa data');
         }
-        if (patient.age >= 60 && slotPatient1.age < 60) {
+        if (patient.age >= old && slotPatient !== null) {
           // eslint-disable-next-line no-param-reassign
-          day.patients[patientPosition1] = { ...patient };
+          day.patients[patientPosition] = { ...patient };
           dayReference = {
             id: day.id,
             patients:
             [...day.patients],
           };
-          change = true;
-          return {
-            id: day.id, patients: [...day.patients],
-          };
-        }
-        if (patient.age >= 60 && slotPatient2.age < 60) {
-          // eslint-disable-next-line no-param-reassign
-          day.patients[patientPosition2] = { ...patient };
-          dayReference = { id: day.id, patients: [...day.patients] };
           change = true;
           return {
             id: day.id, patients: [...day.patients],

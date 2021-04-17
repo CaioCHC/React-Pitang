@@ -1,14 +1,19 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Container } from 'react-bootstrap';
-import { getDate, getMonth, getYear } from 'date-fns';
+import {
+  addDays,
+} from 'date-fns';
+import DatePicker from 'react-datepicker';
+import ptBR from 'date-fns/locale/pt-BR';
 import PatientTable from '../../components/Table/PatientTable';
 import { PagesContext } from '../../pagesContextProvider';
+import './data.css';
 
 export default function Consulta() {
+  const [startDate, setStartDate] = useState(addDays(new Date(), 1));
+  const selectDate = `${startDate.getDate()}-${startDate.getMonth() + 1}-${startDate.getFullYear()}`;
+  const [register, setRegister, maxSchedules] = useContext(PagesContext);
   let patientsSort = [];
-  const [register, setRegister] = useContext(PagesContext);
-  const selectDate = `${getDate(new Date()) + 1}-${getMonth(new Date()) + 1}-${getYear(new Date())}`;
-
   // pega a lista de pacientes do dia especifico e cancela a busca
   for (let i = 0; i < register.length; i += 1) {
     if (register[i].id === selectDate) {
@@ -32,7 +37,7 @@ export default function Consulta() {
     {
       name: 'name',
       value: 'Nome',
-      width: '40%',
+      width: '50%',
     },
     {
       name: 'age',
@@ -42,7 +47,7 @@ export default function Consulta() {
     {
       name: 'status',
       value: 'Status',
-      width: '30%',
+      width: '20%',
     },
     {
       name: 'report',
@@ -53,11 +58,19 @@ export default function Consulta() {
 
   return (
     <Container className="mt-5">
+      <DatePicker
+        className="data"
+        selected={startDate}
+        onChange={(date) => setStartDate(date)}
+        dateFormat="dd/MM/yyyy"
+        locale={ptBR}
+
+      />
       <PatientTable
         titles={titles}
         patients={patientsSort}
         date={selectDate}
-        size={20}
+        size={maxSchedules}
         register={register}
         setRegister={setRegister}
       />
