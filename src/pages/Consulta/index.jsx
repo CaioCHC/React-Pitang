@@ -6,7 +6,7 @@ import { PagesContext } from '../../pagesContextProvider';
 
 export default function Consulta() {
   let patientsSort = [];
-  const [register] = useContext(PagesContext);
+  const [register, setRegister] = useContext(PagesContext);
   const selectDate = `${getDate(new Date()) + 1}-${getMonth(new Date()) + 1}-${getYear(new Date())}`;
 
   // pega a lista de pacientes do dia especifico e cancela a busca
@@ -27,18 +27,27 @@ export default function Consulta() {
     {
       name: 'schedule',
       value: 'Horário',
+      width: '10%',
     },
     {
       name: 'name',
       value: 'Nome',
+      width: '40%',
     },
     {
       name: 'age',
       value: 'Idade',
+      width: '10%',
     },
     {
       name: 'status',
       value: 'Status',
+      width: '30%',
+    },
+    {
+      name: 'report',
+      value: 'Relatório',
+      width: '10%',
     },
   ];
 
@@ -47,7 +56,10 @@ export default function Consulta() {
       <PatientTable
         titles={titles}
         patients={patientsSort}
+        date={selectDate}
         size={20}
+        register={register}
+        setRegister={setRegister}
       />
     </Container>
   );

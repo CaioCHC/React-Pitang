@@ -37,6 +37,7 @@ export default function SchedulingForm() {
       hour: values.scheduling.getHours(),
       minutes: values.scheduling.getMinutes(),
       status: 'Aguardando',
+      report: '',
     };
     let existingDate = false;
     let dayReference = {};

@@ -1,41 +1,5 @@
 {
   "register": [
-    {
-      "id": "17-4-2021",
-      "patients": [
-        {
-          "name": "teste",
-          "age": 29,
-          "schedule": "10:30",
-          "hour": 10,
-          "minutes": 30,
-          "status": "Aguardando"
-        },
-        {
-          "name": "Daniela de Santana Marins",
-          "age": 0,
-          "schedule": "11:30",
-          "hour": 11,
-          "minutes": 30,
-          "status": "Aguardando"
-        },
-        {
-          "name": "Caio Carvalho",
-          "age": 20,
-          "schedule": "9:00",
-          "hour": 9,
-          "minutes": 0,
-          "status": "Aguardando"
-        },
-        {
-          "name": "teste4",
-          "age": 14,
-          "schedule": "12:30",
-          "hour": 12,
-          "minutes": 30,
-          "status": "Aguardando"
-        }
-      ]
-    }
+
   ]
 }
