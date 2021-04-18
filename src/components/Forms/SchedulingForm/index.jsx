@@ -4,14 +4,19 @@ import React, { useContext } from 'react';
 import * as Yup from 'yup';
 import DatePicker from 'react-datepicker';
 import {
-  setHours, setMinutes, addDays, getDate, getYear, getMonth,
+  setHours,
+  setMinutes,
+  addDays,
+  getDate,
+  getYear,
+  getMonth,
 } from 'date-fns';
-import ptBR from 'date-fns/locale/pt-BR';
 import { Button } from 'react-bootstrap';
 import FormLabel from 'react-bootstrap/FormLabel';
 import {
   Formik, Field, Form, ErrorMessage,
 } from 'formik';
+import ptBR from 'date-fns/locale/pt-BR';
 import axios from '../../../utils/api';
 import { PagesContext } from '../../../pagesContextProvider';
 
@@ -20,18 +25,28 @@ export default function SchedulingForm({ maxSlots, old }) {
 
   const onSubmit = async (values) => {
     const { name } = values;
-    const date = `${values.scheduling.getDate()}-${values.scheduling.getMonth() + 1}-${values.scheduling.getFullYear()}`;
+    const date = `${values.scheduling.getDate()}-${
+      values.scheduling.getMonth() + 1
+    }-${values.scheduling.getFullYear()}`;
     // Lógica para converter data selecionada em idade.
-    const age = getYear(new Date()) - values.birth.getFullYear()
-      + (getMonth(new Date()) - values.birth.getMonth() < 0 ? 1
-        : (getMonth(new Date()) - values.birth.getMonth()) === 0
-          ? (getDate(new Date()) - values.birth.getDate()) >= 0 ? 1 : 0 : 0);
+    const age = getYear(new Date())
+      - values.birth.getFullYear()
+      + (getMonth(new Date()) - values.birth.getMonth() < 0
+        ? 1
+        : getMonth(new Date()) - values.birth.getMonth() === 0
+          ? getDate(new Date()) - values.birth.getDate() >= 0
+            ? 1
+            : 0
+          : 0);
 
     const patient = {
       name,
       age,
-      schedule: `${values.scheduling.getHours()}:${values.scheduling.getMinutes() >= 10 ? values.scheduling.getMinutes()
-        : `0${values.scheduling.getMinutes()}`}`,
+      schedule: `${values.scheduling.getHours()}:${
+        values.scheduling.getMinutes() >= 10
+          ? values.scheduling.getMinutes()
+          : `0${values.scheduling.getMinutes()}`
+      }`,
       hour: values.scheduling.getHours(),
       minutes: values.scheduling.getMinutes(),
       status: 'Aguardando',
@@ -50,9 +65,16 @@ export default function SchedulingForm({ maxSlots, old }) {
 
         // checa se há posições disponiveis para o horário e se há possibilidade de troca
         day.patients.forEach((element, index) => {
-          if (patient.hour === element.hour && patient.minutes === element.minutes) {
+          if (
+            patient.hour === element.hour
+            && patient.minutes === element.minutes
+          ) {
             slotCount += 1;
-            if (patient.age >= old && element.age < old && slotPatient === null) {
+            if (
+              patient.age >= old
+              && element.age < old
+              && slotPatient === null
+            ) {
               patientPosition = index;
               slotPatient = element;
             }
@@ -64,21 +86,23 @@ export default function SchedulingForm({ maxSlots, old }) {
             dayReference = { id: day.id, patients: [...day.patients, patient] };
             change = true;
             return {
-              id: day.id, patients: [...day.patients, patient],
+              id: day.id,
+              patients: [...day.patients, patient],
             };
-          }console.log('Não há mais vagas nessa data');
+          }
+          console.log('Não há mais vagas nessa data');
         }
         if (patient.age >= old && slotPatient !== null) {
           // eslint-disable-next-line no-param-reassign
           day.patients[patientPosition] = { ...patient };
           dayReference = {
             id: day.id,
-            patients:
-            [...day.patients],
+            patients: [...day.patients],
           };
           change = true;
           return {
-            id: day.id, patients: [...day.patients],
+            id: day.id,
+            patients: [...day.patients],
           };
         }
         console.log('Não há mais vagas nesse horário');
@@ -89,19 +113,25 @@ export default function SchedulingForm({ maxSlots, old }) {
     });
     // Se não existe nenhum registro nessa data, cria novo registro com cadastro do paciente.
     if (existingDate === false) {
-      const response = await axios.post('/register', { id: date, patients: [patient] });
+      const response = await axios.post('/register', {
+        id: date,
+        patients: [patient],
+      });
       setRegister([...register, response.data]);
-    } else if (change) { // Se existe registro e houveram mudanças, atualiza a lista.
+    } else if (change) {
+      // Se existe registro e houveram mudanças, atualiza a lista.
       await axios.put(`/register/${date}`, dayReference);
       setRegister(updatedPatients);
     }
   };
   // regras de validação do formulário
   const validationSchema = Yup.object({
-    name: Yup.string().max(40, 'Nome muito longo. Use abreviações.').trim().required('Campo obrigatório'),
+    name: Yup.string()
+      .max(40, 'Nome muito longo. Use abreviações.')
+      .trim()
+      .required('Campo obrigatório'),
     birth: Yup.date().required('Campo obrigatório').nullable(),
     scheduling: Yup.date().required('Campo obrigatório').nullable(),
-
   });
 
   return (
@@ -120,7 +150,6 @@ export default function SchedulingForm({ maxSlots, old }) {
     >
       {({ isValid }) => (
         <Form>
-
           <FormLabel htmlFor="name">Nome</FormLabel>
           <Field name="name" id="name" type="text" />
           <div style={{ color: 'red' }}>
@@ -177,7 +206,14 @@ export default function SchedulingForm({ maxSlots, old }) {
             <ErrorMessage name="scheduling" />
           </div>
 
-          <Button className="mt-5" type="submit" variant="success" disabled={!isValid}>Enviar</Button>
+          <Button
+            className="mt-5"
+            type="submit"
+            variant="success"
+            disabled={!isValid}
+          >
+            Enviar
+          </Button>
         </Form>
       )}
     </Formik>
