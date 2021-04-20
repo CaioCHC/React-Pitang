@@ -1,6 +1,7 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useContext } from 'react';
+import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 import DatePicker from 'react-datepicker';
 import {
@@ -10,6 +11,7 @@ import {
   getDate,
   getYear,
   getMonth,
+  getHours,
 } from 'date-fns';
 import { Button } from 'react-bootstrap';
 import FormLabel from 'react-bootstrap/FormLabel';
@@ -22,6 +24,7 @@ import { PagesContext } from '../../../pagesContextProvider';
 
 export default function SchedulingForm({ maxSlots, old }) {
   const [register, setRegister, maxSchedules] = useContext(PagesContext);
+  let eraseForm = false;
 
   const onSubmit = async (values) => {
     const { name } = values;
@@ -90,7 +93,7 @@ export default function SchedulingForm({ maxSlots, old }) {
               patients: [...day.patients, patient],
             };
           }
-          console.log('Não há mais vagas nessa data');
+          toast.info('Infelizmente não há mais vagas nessa data.');
         }
         if (patient.age >= old && slotPatient !== null) {
           // eslint-disable-next-line no-param-reassign
@@ -105,26 +108,32 @@ export default function SchedulingForm({ maxSlots, old }) {
             patients: [...day.patients],
           };
         }
-        console.log('Não há mais vagas nesse horário');
+        toast.info('Infelizmente não há mais vagas nesse horário.');
       }
       return {
         ...day,
       };
     });
-    // Se não existe nenhum registro nessa data, cria novo registro com cadastro do paciente.
+    // Se não existe registro nessa data, cria novo registro e solicita limpeza do formulário.
     if (existingDate === false) {
       const response = await axios.post('/register', {
         id: date,
         patients: [patient],
       });
       setRegister([...register, response.data]);
+      toast.info('Parabéns, sua consulta foi marcada!');
+      eraseForm = true;
     } else if (change) {
-      // Se existe registro e houveram mudanças, atualiza a lista.
+      // Se existe registro e houveram mudanças, atualiza a lista e solicita limpeza do formulário.
       await axios.put(`/register/${date}`, dayReference);
       setRegister(updatedPatients);
-    }
+      toast.info('Parabéns, sua consulta foi marcada!');
+      eraseForm = true;
+    } else { eraseForm = false; }
   };
   // regras de validação do formulário
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
   const validationSchema = Yup.object({
     name: Yup.string()
       .max(40, 'Nome muito longo. Use abreviações.')
@@ -139,7 +148,7 @@ export default function SchedulingForm({ maxSlots, old }) {
       validationSchema={validationSchema}
       onSubmit={async (values, { resetForm }) => {
         await onSubmit(values);
-        resetForm();
+        if (eraseForm) { resetForm(); }
       }}
       validateOnMount
       initialValues={{
@@ -164,7 +173,7 @@ export default function SchedulingForm({ maxSlots, old }) {
               return (
                 <DatePicker
                   {...field}
-                  selected={value} // ao reabrir, o campo selecionado anteriormente estará marcado
+                  selected={value} // marca a data selecionada
                   onChange={(val) => setFieldValue('birth', val)} // cada mudança no DatePicker é passada pro field
                   maxDate={new Date()}
                   dateFormat="dd/MM/yyyy"
@@ -184,17 +193,17 @@ export default function SchedulingForm({ maxSlots, old }) {
             {({ form, field }) => {
               const { setFieldValue } = form;
               const { value } = field;
-
               return (
                 <DatePicker
                   {...field}
-                  selected={value}
-                  onChange={(val) => setFieldValue('scheduling', val)}
-                  showTimeSelect
                   minDate={addDays(new Date(), 1)}
                   maxDate={addDays(new Date(), 5)}
+                  showTimeSelect
                   minTime={setHours(setMinutes(new Date(), 0), 8)}
                   maxTime={setHours(setMinutes(new Date(), 30), 12)}
+                  fixDefault={setHours(setMinutes(value, 0), 8)}
+                  selected={getHours(value) < 8 ? setHours(setMinutes(value, 0), 8) : value}
+                  onChange={(val) => setFieldValue('scheduling', val)}
                   dateFormat="dd/MM/yyyy h:mm aa"
                   timeCaption="Horário"
                   locale={ptBR}
@@ -205,7 +214,6 @@ export default function SchedulingForm({ maxSlots, old }) {
           <div style={{ color: 'red' }}>
             <ErrorMessage name="scheduling" />
           </div>
-
           <Button
             className="mt-5"
             type="submit"

@@ -4,6 +4,7 @@ import { FaFileAlt } from 'react-icons/fa';
 import {
   Button, Modal, FormControl,
 } from 'react-bootstrap';
+import { toast } from 'react-toastify';
 import axios from '../../utils/api';
 
 export default function Index({
@@ -36,6 +37,7 @@ export default function Index({
     setRegister(updatedPatients);
     await axios.put(`/register/${date}`, { id: date, patients: patientsSort });
     setShow(false);
+    toast.info('Dados alterados com sucesso.');
   };
 
   return (
