@@ -1,9 +1,7 @@
 /* eslint-disable no-param-reassign */
 import React, { useState } from 'react';
 import { FaFileAlt } from 'react-icons/fa';
-import {
-  Button, Modal, FormControl,
-} from 'react-bootstrap';
+import { Button, Modal, FormControl } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import axios from '../../utils/api';
 
@@ -27,17 +25,21 @@ export default function Index({
     const updatedPatients = register.map((day) => {
       if (day.id === date) {
         return {
-          id: day.id, patients: patientsSort,
+          id: day.id,
+          patients: patientsSort,
         };
       }
       return {
-        id: day.id, patients: day.patients,
+        id: day.id,
+        patients: day.patients,
       };
     });
-    setRegister(updatedPatients);
-    await axios.put(`/register/${date}`, { id: date, patients: patientsSort });
-    setShow(false);
-    toast.info('Dados alterados com sucesso.');
+    try {
+      setRegister(updatedPatients);
+      await axios.put(`/register/${date}`, { id: date, patients: patientsSort });
+      setShow(false);
+      toast.info('Dados alterados com sucesso.');
+    } catch (error) { console.log(error.message); }
   };
 
   return (
@@ -49,11 +51,7 @@ export default function Index({
         <Modal.Header closeButton>
           <Modal.Title>Relatório</Modal.Title>
         </Modal.Header>
-        <FormControl
-          as="textarea"
-          value={text}
-          onChange={onChangeText}
-        />
+        <FormControl as="textarea" value={text} onChange={onChangeText} />
         <Modal.Footer>
           <Button variant="danger" onClick={handleClose}>
             Cancelar

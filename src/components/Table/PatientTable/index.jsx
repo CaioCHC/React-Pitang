@@ -6,17 +6,13 @@ import React from 'react';
 import { Table } from 'react-bootstrap';
 import './PatientTable.css';
 
-export default function Index({
-  titles = [], patientsSort, maxSchedules,
-}) {
+export default function Index({ titles = [], patientsSort, maxSchedules }) {
   return (
     <div>
       <Table striped bordered hover size="sm" variant="success" responsive>
         <thead>
           <tr>
-            <th>
-              #
-            </th>
+            <th>#</th>
             {titles.map((title) => (
               <th key={title.value} width={title.width}>
                 {title.value}
@@ -39,16 +35,18 @@ export default function Index({
               </tr>
             ))}
 
-            {Array.from({ length: (maxSchedules - patientsSort.length) }).map((_, index) => (
-              <tr key={index}>
-                <td>{ patientsSort.length + index + 1}</td>
-                {Array.from({ length: titles.length }).map((_2, index2) => (
-                  <td key={index2} className="midle">
-                    ---
-                  </td>
-                ))}
-              </tr>
-            ))}
+            {Array.from({ length: maxSchedules - patientsSort.length }).map(
+              (_, index) => (
+                <tr key={index}>
+                  <td>{patientsSort.length + index + 1}</td>
+                  {Array.from({ length: titles.length }).map((_2, index2) => (
+                    <td key={index2} className="midle">
+                      ---
+                    </td>
+                  ))}
+                </tr>
+              ),
+            )}
           </>
         </tbody>
       </Table>

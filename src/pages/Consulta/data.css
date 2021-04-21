@@ -1,12 +1,12 @@
-.data{
-max-width: 100px;
-margin-bottom: 10px;
-display: block;
-padding: 6px 12px;
-font-size: 14px;
-line-height: 1.5;
-color: #555;
-background-color: rgba(77, 160, 77, 0.199);
-border: 1px solid rgb(16, 78, 19);
-border-radius: 5px;  
+.data {
+  max-width: 100px;
+  margin-bottom: 10px;
+  display: block;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #555;
+  background-color: rgba(77, 160, 77, 0.199);
+  border: 1px solid rgb(16, 78, 19);
+  border-radius: 5px;
 }

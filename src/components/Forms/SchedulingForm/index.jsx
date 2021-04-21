@@ -116,20 +116,30 @@ export default function SchedulingForm({ maxSlots, old }) {
     });
     // Se não existe registro nessa data, cria novo registro e solicita limpeza do formulário.
     if (existingDate === false) {
-      const response = await axios.post('/register', {
-        id: date,
-        patients: [patient],
-      });
-      setRegister([...register, response.data]);
-      toast.info('Parabéns, sua consulta foi marcada!');
-      eraseForm = true;
+      try {
+        const response = await axios.post('/register', {
+          id: date,
+          patients: [patient],
+        });
+        setRegister([...register, response.data]);
+        toast.info('Parabéns, sua consulta foi marcada!');
+        eraseForm = true;
+      } catch (error) {
+        console.log(error.message);
+      }
     } else if (change) {
       // Se existe registro e houveram mudanças, atualiza a lista e solicita limpeza do formulário.
-      await axios.put(`/register/${date}`, dayReference);
-      setRegister(updatedPatients);
-      toast.info('Parabéns, sua consulta foi marcada!');
-      eraseForm = true;
-    } else { eraseForm = false; }
+      try {
+        await axios.put(`/register/${date}`, dayReference);
+        setRegister(updatedPatients);
+        toast.info('Parabéns, sua consulta foi marcada!');
+        eraseForm = true;
+      } catch (error) {
+        console.log(error.message);
+      }
+    } else {
+      eraseForm = false;
+    }
   };
   // regras de validação do formulário
   const today = new Date();
@@ -148,7 +158,9 @@ export default function SchedulingForm({ maxSlots, old }) {
       validationSchema={validationSchema}
       onSubmit={async (values, { resetForm }) => {
         await onSubmit(values);
-        if (eraseForm) { resetForm(); }
+        if (eraseForm) {
+          resetForm();
+        }
       }}
       validateOnMount
       initialValues={{
@@ -202,7 +214,11 @@ export default function SchedulingForm({ maxSlots, old }) {
                   minTime={setHours(setMinutes(new Date(), 0), 8)}
                   maxTime={setHours(setMinutes(new Date(), 30), 12)}
                   fixDefault={setHours(setMinutes(value, 0), 8)}
-                  selected={getHours(value) < 8 ? setHours(setMinutes(value, 0), 8) : value}
+                  selected={
+                    getHours(value) < 8
+                      ? setHours(setMinutes(value, 0), 8)
+                      : value
+                  }
                   onChange={(val) => setFieldValue('scheduling', val)}
                   dateFormat="dd/MM/yyyy h:mm aa"
                   timeCaption="Horário"

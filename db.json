@@ -68,8 +68,8 @@
           "schedule": "10:00",
           "hour": 10,
           "minutes": 0,
-          "status": "Aguardando",
-          "report": ""
+          "status": "Não atendido",
+          "report": "teste"
         },
         {
           "name": "Caio César Hélio de Carvalho",
@@ -86,7 +86,7 @@
           "schedule": "10:30",
           "hour": 10,
           "minutes": 30,
-          "status": "Aguardando",
+          "status": "Não atendido",
           "report": ""
         },
         {
@@ -95,7 +95,7 @@
           "schedule": "10:30",
           "hour": 10,
           "minutes": 30,
-          "status": "Aguardando",
+          "status": "Atendido",
           "report": ""
         },
         {

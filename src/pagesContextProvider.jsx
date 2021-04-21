@@ -7,8 +7,10 @@ export default function PagesContextProvider({ children }) {
   const maxSchedules = 20;
   const [register, setRegister] = useState([]);
   const fetchRegister = async () => {
-    const response = await axios.get('./register');
-    setRegister(response.data);
+    try {
+      const response = await axios.get('./register');
+      setRegister(response.data);
+    } catch (error) { console.logo(error.message); }
   };
   useEffect(() => {
     fetchRegister();

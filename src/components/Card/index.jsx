@@ -9,13 +9,14 @@ export default function index({ title, children }) {
           <Card.Title>{title}</Card.Title>
           <Card.Body>
             <Card.Text style={{ width: '10rem' }}>
-              <i>Pessoas com pelo menos 60 anos possuem prioridade no agendamento.</i>
+              <i>
+                Pessoas com pelo menos 60 anos possuem prioridade no
+                agendamento.
+              </i>
             </Card.Text>
           </Card.Body>
         </Card.Header>
-        <Card.Body>
-          {children}
-        </Card.Body>
+        <Card.Body>{children}</Card.Body>
       </div>
     </Card>
   );
