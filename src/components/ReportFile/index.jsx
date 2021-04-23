@@ -39,7 +39,7 @@ export default function Index({
       await axios.put(`/register/${date}`, { id: date, patients: patientsSort });
       setShow(false);
       toast.info('Dados alterados com sucesso.');
-    } catch (error) { console.log(error.message); }
+    } catch (error) { console.error(error.message); }
   };
 
   return (

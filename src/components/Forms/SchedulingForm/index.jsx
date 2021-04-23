@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useContext } from 'react';
@@ -11,7 +12,6 @@ import {
   getDate,
   getYear,
   getMonth,
-  getHours,
 } from 'date-fns';
 import { Button } from 'react-bootstrap';
 import FormLabel from 'react-bootstrap/FormLabel';
@@ -33,14 +33,14 @@ export default function SchedulingForm({ maxSlots, old }) {
     }-${values.scheduling.getFullYear()}`;
     // Lógica para converter data selecionada em idade.
     const age = getYear(new Date())
-      - values.birth.getFullYear()
-      + (getMonth(new Date()) - values.birth.getMonth() < 0
-        ? 1
-        : getMonth(new Date()) - values.birth.getMonth() === 0
-          ? getDate(new Date()) - values.birth.getDate() >= 0
-            ? 1
-            : 0
-          : 0);
+      - (values.birth.getFullYear() + 1)
+      + (getMonth(new Date()) < values.birth.getMonth()
+        ? 0
+        : getMonth(new Date()) === values.birth.getMonth()
+          ? getDate(new Date()) < values.birth.getDate()
+            ? 0
+            : 1
+          : 1);
 
     const patient = {
       name,
@@ -93,10 +93,9 @@ export default function SchedulingForm({ maxSlots, old }) {
               patients: [...day.patients, patient],
             };
           }
-          toast.info('Infelizmente não há mais vagas nessa data.');
+          toast.warning('Infelizmente não há mais vagas nessa data.');
         }
         if (patient.age >= old && slotPatient !== null) {
-          // eslint-disable-next-line no-param-reassign
           day.patients[patientPosition] = { ...patient };
           dayReference = {
             id: day.id,
@@ -108,7 +107,7 @@ export default function SchedulingForm({ maxSlots, old }) {
             patients: [...day.patients],
           };
         }
-        toast.info('Infelizmente não há mais vagas nesse horário.');
+        toast.warning('Infelizmente não há mais vagas nesse horário.');
       }
       return {
         ...day,
@@ -125,7 +124,7 @@ export default function SchedulingForm({ maxSlots, old }) {
         toast.info('Parabéns, sua consulta foi marcada!');
         eraseForm = true;
       } catch (error) {
-        console.log(error.message);
+        console.error(error.message);
       }
     } else if (change) {
       // Se existe registro e houveram mudanças, atualiza a lista e solicita limpeza do formulário.
@@ -135,7 +134,7 @@ export default function SchedulingForm({ maxSlots, old }) {
         toast.info('Parabéns, sua consulta foi marcada!');
         eraseForm = true;
       } catch (error) {
-        console.log(error.message);
+        console.error(error.message);
       }
     } else {
       eraseForm = false;
@@ -144,13 +143,31 @@ export default function SchedulingForm({ maxSlots, old }) {
   // regras de validação do formulário
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  const minTimeSchedule = setHours(setMinutes(addDays(new Date(), 1), 0), 8);
+  const maxTimeSchedule = setHours(setMinutes(addDays(new Date(), 5), 0), 8);
+  const minDaySchedule = addDays(new Date(), 1);
+  const maxDaySchedule = addDays(new Date(), 5);
+
   const validationSchema = Yup.object({
     name: Yup.string()
       .max(40, 'Nome muito longo. Use abreviações.')
       .trim()
       .required('Campo obrigatório'),
-    birth: Yup.date().required('Campo obrigatório').nullable(),
-    scheduling: Yup.date().required('Campo obrigatório').nullable(),
+    birth: Yup.date()
+      .max(today, 'Data inválida.')
+      .required('Campo obrigatório')
+      .nullable(),
+    scheduling: Yup.date()
+      .min(
+        minTimeSchedule || minDaySchedule,
+        'Data inválida.',
+      )
+      .max(
+        maxTimeSchedule || maxDaySchedule,
+        'Data inválida.',
+      )
+      .required('Campo obrigatório')
+      .nullable(),
   });
 
   return (
@@ -205,6 +222,7 @@ export default function SchedulingForm({ maxSlots, old }) {
             {({ form, field }) => {
               const { setFieldValue } = form;
               const { value } = field;
+
               return (
                 <DatePicker
                   {...field}
@@ -213,13 +231,9 @@ export default function SchedulingForm({ maxSlots, old }) {
                   showTimeSelect
                   minTime={setHours(setMinutes(new Date(), 0), 8)}
                   maxTime={setHours(setMinutes(new Date(), 30), 12)}
-                  fixDefault={setHours(setMinutes(value, 0), 8)}
-                  selected={
-                    getHours(value) < 8
-                      ? setHours(setMinutes(value, 0), 8)
-                      : value
-                  }
+                  shouldCloseOnSelect={false}
                   onChange={(val) => setFieldValue('scheduling', val)}
+                  selected={value}
                   dateFormat="dd/MM/yyyy h:mm aa"
                   timeCaption="Horário"
                   locale={ptBR}

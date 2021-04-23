@@ -51,7 +51,7 @@ export default function Index({
           patients: patientsSort,
         });
       } catch (error) {
-        console.log(error.message);
+        console.error(error.message);
       }
     }
   };

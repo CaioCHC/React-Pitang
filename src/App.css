@@ -1,5 +1,4 @@
-.react-datepicker-wrapper,
-.react-datepicker__input-container input {
+.react-datepicker-wrapper{
   display: block;
 }
 
