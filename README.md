@@ -36,19 +36,19 @@
 
 1) Download the files
 2) Execute <b>yarn</b> or <b>npm install</b> to install the dependencies
-3) At the project terminal execute: <b>json-server --watch db.json --port 3004</b> to start the json server
+3) At the project terminal execute: <b>json-server --watch db.json --port 3004</b> to start the json server. (<b>npm i json-server</b> if you don't have)
 4) Open another terminal and run <b>yarn start</b>
 
 ## Auxiliaries dependencies:
- +axios
- +react-router-dom
- +react-bootstrap
- +react-toastify
- +react-icons
- +react-datepicker
- +date-fns
- +formik 
- +yup
+ + axios
+ + react-router-dom
+ + react-bootstrap
+ + react-toastify
+ + react-icons
+ + react-datepicker
+ + date-fns
+ + formik 
+ + yup
  
  ## Comments
  1) Tests have not been implemented
